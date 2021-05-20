@@ -1,32 +1,22 @@
 var express = require('express')
-var app = express()
+var logger = require('./logger')
 
+var app = express()
 var port = 3001
 
-app.get('/', function (req, res, next) {
-  console.log("== GET /")
-  console.log("  -- req.url:", req.url)
-  console.log("  -- req.method:", req.method)
-  // console.log("  -- req.headers:", req.headers)
+app.use(logger)
 
+app.use(express.static('public'))
+
+app.get('/', function (req, res, next) {
   res.status(200).sendFile(__dirname + '/public/index.html')
 })
 
 app.get('/people', function (req, res, next) {
-  console.log("== GET /")
-  console.log("  -- req.url:", req.url)
-  console.log("  -- req.method:", req.method)
-  // console.log("  -- req.headers:", req.headers)
-
   res.status(200).sendFile(__dirname + '/public/people.html')
 })
 
 app.get('/cats', function (req, res, next) {
-  console.log("== GET /cats")
-  console.log("  -- req.url:", req.url)
-  console.log("  -- req.method:", req.method)
-  // console.log("  -- req.headers:", req.headers)
-
   var responseBody = "<html>"
   responseBody += "<head>"
   responseBody += "</head>"
@@ -42,11 +32,6 @@ app.get('/cats', function (req, res, next) {
 })
 
 app.get('/morecats', function (req, res, next) {
-  console.log("== GET /morecats")
-  console.log("  -- req.url:", req.url)
-  console.log("  -- req.method:", req.method)
-  // console.log("  -- req.headers:", req.headers)
-
   var responseBody = "<html>"
   responseBody += "<head>"
   responseBody += "</head>"
@@ -61,20 +46,27 @@ app.get('/morecats', function (req, res, next) {
   res.status(200).send(responseBody)
 })
 
+var availablePeople = [
+  'luke',
+  'leia',
+  'rey',
+  'finn',
+  'r2d2'
+]
+
 app.get('/people/:person', function (req, res, next) {
-  console.log("== GET /morecats")
-  console.log("  -- req.url:", req.url)
-  console.log("  -- req.method:", req.method)
   console.log("  -- req.params:", req.params)
-  next()
+  console.log("  -- req.params.person:", req.params.person)
+
+  var person = req.params.person
+  if (availablePeople.indexOf(person) !== -1) {
+    res.status(200).sendFile(__dirname + '/public/people/' + person + '.html')
+  } else {
+    next()
+  }
 })
 
 app.get('*', function (req, res, next) {
-  console.log("== 404")
-  console.log("  -- req.url:", req.url)
-  console.log("  -- req.method:", req.method)
-  // console.log("  -- req.headers:", req.headers)
-
   res.status(404).sendFile(__dirname + '/public/404.html')
 })
 
